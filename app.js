@@ -4,7 +4,7 @@ const express=require("express");
 const bodyParser=require("body-parser");
 const ejs=require("ejs");
 const mongoose=require("mongoose");
-const encrypt=require("mongoose-encryption");
+const md5=require("md5");
 const app= express();
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine","ejs");
@@ -15,7 +15,7 @@ const userSchema= new mongoose.Schema({
   password:String
 });
 //process.env.SOME_LONG_UNGUESSABLE_STRING;
-userSchema.plugin(encrypt, { secret: process.env.SECRET,encryptedFields:["password"]});
+// userSchema.plugin(encrypt, { secret: process.env.SECRET,encryptedFields:["password"]});
 const User= new mongoose.model("User",userSchema);
 app.get("/",function(req,res)
 {
@@ -34,7 +34,7 @@ app.get("/login",function(req,res)
    const user=new User(
      {
        userName:req.body.username,
-       password:req.body.password
+       password:md5(req.body.password)
      }
    );
 
@@ -52,15 +52,15 @@ app.get("/login",function(req,res)
  });
   app.post("/login",function(req,res)
   {
-    console.log("hello");
-     const password=req.body.password;
+   // console.log("hello");
+     const password=md5(req.body.password);
      User.findOne({userName:req.body.username},function(err,foundUser)
      {
        if(!err)
        {
          if(foundUser.password==password)
          {
-           console.log("world");
+        //   console.log("world");
            res.render("secrets");
            
          }
